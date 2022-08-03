@@ -3,31 +3,27 @@ const date = require('date-and-time');
 const now = new Date;
 // console.log(date.format(now, 'YYYY/MM/DD HH:mm:ss'));
 
-const workSchema = mongoose.Schema({
+const scheduleSchema = mongoose.Schema({
     EmpID: {
         type: String,
         required: true
     },
+    CurrDate: {
+        type: String,
+        required: true
+    },
     Entry: {
-        type: Date,
+        type: String,
         required: false
     },
     Exit: {
-        type: Date,
+        type: String,
         required: false
     },
-    PayPerHour: {
-        type: Number,
-        required: false
-    },
-    HoursWorked: {
-        type: Number,
+    Description: {
+        type: String,
         default: 0
-    },
-    Earning: {
-        type: Number,
-        reqired: false
     }
 });
 
-module.exports = mongoose.model('WorkDB', workSchema);
+module.exports = mongoose.model('ScheduleDB', scheduleSchema);
