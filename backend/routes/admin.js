@@ -176,11 +176,12 @@ router.put('/editSchedule/:ID', async (req, res)=>{
 
 // get all schedules for a particular date
 // date.format(now, 'YYYY/MM/DD HH:mm:ss')
-router.get('/dateschedule/:date', async (req, res)=>{
+router.get('/dateSchedule/:date', async (req, res)=>{
     const date = req.params.date;
-    
+    console.log(date);
+
     try {
-        const ScheduleList = await ScheduleDB.find({"CurrDate": date});
+        const ScheduleList = await ScheduleDB.find({CurrDate: date});
         res.json(ScheduleList);
     } catch (err) {
         res.send({message: err});
@@ -191,8 +192,8 @@ router.get('/dateschedule/:date', async (req, res)=>{
 // ID of backend user in string format`
 router.get('/idPresentSchedule/:ID', async (req, res)=>{
     const id = req.params.ID;
-    const threshold = date.format(now, 'YYYY/MM/DD');
-    console.log(threshold);
+    const threshold = date.format(now, 'YYYY-MM-DD');
+    // console.log(threshold);
     
     try {
         const ScheduleList = await ScheduleDB.find({EmpID: id, CurrDate: {$gte: threshold}});
@@ -233,6 +234,11 @@ router.delete('/deleteSchedule/:ID', async (req, res)=>{
     } catch (err) {
         res.json({message: err});
     }
-})
+});
+
+
+// ------------- all tested till now -------------------
+
+
 
 module.exports = router;

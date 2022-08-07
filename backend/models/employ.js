@@ -25,6 +25,10 @@ const employSchema = mongoose.Schema({
         type: String,
         required: false
     },
+    Logged: {
+        type: Boolean,
+        default: false
+    },
     Active: {
         type: Boolean,
         required: false

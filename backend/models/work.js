@@ -8,6 +8,10 @@ const workSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    Date: {
+        type: String,
+        required: true
+    },
     Entry: {
         type: Date,
         required: false
@@ -15,18 +19,6 @@ const workSchema = mongoose.Schema({
     Exit: {
         type: Date,
         required: false
-    },
-    PayPerHour: {
-        type: Number,
-        required: false
-    },
-    HoursWorked: {
-        type: Number,
-        default: 0
-    },
-    Earning: {
-        type: Number,
-        reqired: false
     }
 });
 
