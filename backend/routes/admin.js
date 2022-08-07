@@ -2,10 +2,16 @@ const express = require('express');
 const date = require("date-and-time");
 const router = express.Router();
 const now = new Date;
+const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken");
 const EmployDB = require('../models/employ');
 const AdminDB = require('../models/admin');
 const WorkDB = require('../models/work');
 const ScheduleDB = require('../models/schedule');
+const asyncHandler = require("express-async-handler");
+const authorisation = require("../authorisation");
+const tokenGen = require('../tokengen');
+const {body, validationResult} = require("express-validator");
 
 // home page on admin side
 router.get('/', (req, res)=>{
@@ -236,9 +242,81 @@ router.delete('/deleteSchedule/:ID', async (req, res)=>{
     }
 });
 
+// excel sheet for an employ on date yyyy-mm
+router.get('/excel/:ID/:date', async (req, res)=>{
+    const id = req.params.ID;
+    const date = req.params.date;
+
+    const workList = await WorkDB.find({EmpID: id});
+    const reqList = [];
+    workList.forEach(element => {
+        if(element.Date.includes(date)){
+            reqList.push(element);
+        }
+    });
+    res.json(reqList);
+});
+
+
+
 
 // ------------- all tested till now -------------------
 
+
+router.post("/login",[
+    body("email", "Enter a valid email address").isEmail(),
+    body("password", "Password cannot be blank").exists(),
+],async(req, res) => {
+    let success = false ;
+    // return errors if any :
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success, errors: errors.array() });
+    }
+
+    // yahan destructuring kra
+    const {email, password} = req.body ;
+    try {
+        let user = await AdminDB.findOne({email}) ;
+        if(!user) {
+            return res.status(400).json({success, error : "Please try to login with correct credentials"}) ;
+        } 
+
+        const passwordCompare = await bcrypt.compare(password , user.password) ;
+        if(!passwordCompare) {
+            return res.status(400).json({success, error : "Please try to login with correct credentials"}) ;
+        }
+
+        const data = {
+            user:{
+                id: user.id
+            }
+        }
+        const authToken = jwt.sign(data, process.env.JWT_SECRET_KEY);
+        success = true ;
+        res.json({success, authToken})
+
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.post("/register", asyncHandler(async (req, res) => {
+    const userData = req.body;
+    // console.log(userData.name);
+    const userExist = await AdminDB.findOne({ email: userData.email });
+    if (userExist) {
+        throw new Error("User Already Exists");
+    } else {
+        const createUser = await AdminDB.create(userData);
+        // createUser.token = generateToken(createUser._id);
+        console.log(createUser);
+        res.send(createUser);
+        console.log(createUser.token);
+    }
+})
+);
 
 
 module.exports = router;

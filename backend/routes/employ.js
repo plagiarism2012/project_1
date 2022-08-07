@@ -6,6 +6,7 @@ const EmployDB = require('../models/employ');
 const AdminDB = require('../models/admin');
 const WorkDB = require('../models/work');
 const ScheduleDB = require('../models/schedule');
+const { update } = require('../models/employ');
 
 
 //we are on employ side
@@ -53,10 +54,12 @@ router.get('/allWorks/:ID', async (req, res)=>{
 
 // login route after scaning
 router.post('/newWork/:ID', async (req, res)=>{
+    const entry_time = date.format(now, 'YYYY-MM-DD HH:mm:ss');
     const work = new WorkDB({
         EmpID: req.params.ID,
-        Date: date.format(now, 'YYYY/MM/DD'),
-        Entry: date.format(now, 'YYYY/MM/DD HH:mm:ss')
+        Date: date.format(now, 'YYYY-MM-DD'),
+        Entry: entry_time,
+        Exit: "2022-08-07T10:24:03.000+00:00"
     });
 
     await work.save().
@@ -67,42 +70,41 @@ router.post('/newWork/:ID', async (req, res)=>{
     });
 
     // made that employ Logged = true
-    const person = EmployDB.findById(req.params.ID);
-    const employ = person.toString();
-    console.log(employ);
-    // person.Logged = true;
-    // const updatedEmploy = await EmployDB.findByIdAndUpdate(req.params.ID,
-    //     {$set: person},
-    //     {new: true}
-    // );
-    // res.json(updatedEmploy);
+    const person = await EmployDB.findById(req.params.ID);
+    person.Logged = true;
+    await EmployDB.findByIdAndUpdate(req.params.ID,
+        {$set: person},
+        {new: true}
+    );
+    // console.log(person.Logged);
 });
 
 //logout session after scaning
 router.put('/editWork/:ID', async (req, res)=>{
     try{
-        const newWork = WorkDB.find({EmpID: req.params.ID, MinutesWorked: 0});
+        var chk = "2022-08-07T10:24:03.000+00:00";
+        const newWork = await WorkDB.findOne({EmpID: req.params.ID, Exit: chk});
         if(!newWork){
             return res.status(401).json("Not Found")
         }
 
-        const updatedWork = await WorkDB.findByIdAndUpdate(req.params.ID,
-            {$set: newWork},
-            {new: true}
-        );
+        var exit_time = date.format(now, 'YYYY-MM-DD HH:mm:ss');
+        var newvalues = { $set: { Exit: exit_time } };
+
+        const updatedWork = await WorkDB.updateOne(newWork, newvalues)
         res.json(updatedWork);
-        const person = EmployDB.findById(req.params.ID);
+        const person = await EmployDB.findById(req.params.ID);
         person.Logged = false;
-        const updatedEmploy = await EmployDB.findByIdAndUpdate(req.params.ID,
+        await EmployDB.findByIdAndUpdate(req.params.ID,
             {$set: person},
             {new: true}
         );
-        res.json(updatedEmploy);
     }
     catch(err){
         res.json({message: err});
     }
-})
+});
+
 
 
 module.exports = router;
