@@ -31,7 +31,11 @@ const employSchema = mongoose.Schema({
     },
     Active: {
         type: Boolean,
-        required: false
+        required: true
+    },
+    DateOfHire: {
+        type: Date,
+        required: true
     }
 });
 

@@ -5,7 +5,7 @@ const now = new Date;
 
 const scheduleSchema = mongoose.Schema({
     EmpID: {
-        type: String,
+        type: Array,
         required: true
     },
     CurrDate: {
@@ -13,12 +13,16 @@ const scheduleSchema = mongoose.Schema({
         required: true
     },
     Entry: {
-        type: String,
+        type: Date,
         required: false
     },
     Exit: {
-        type: String,
+        type: Date,
         required: false
+    },
+    Location: {
+        type: String,
+        default: "Not Specified"
     },
     Description: {
         type: String,

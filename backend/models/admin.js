@@ -14,7 +14,9 @@ const adminSchema = mongoose.Schema({
     password: {
         type: String,
         require: true,
-        unique: true,
+    },
+    currToken: {
+        type: String,
     }
 });
 
